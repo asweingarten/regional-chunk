@@ -118,6 +118,7 @@ view model =
         , ("width", "30px")
         , ("left", left ++ "px")
         , ("top", right ++ "px")
+        , ("background-color", "rgba(40,40,40,0.4)")
         ]
   in
   div []
