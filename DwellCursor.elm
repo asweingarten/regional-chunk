@@ -30,12 +30,42 @@ init =
   , Cmd.none)
 
 -- UPDATE
+onCursorMoved : Position -> Model -> (Model, Cmd Msg)
+onCursorMoved newPosition model =
+  let
+    threshold = 10
+    deltaX = newPosition.x - model.cursorActivationZone.x
+    deltaY = newPosition.y - model.cursorActivationZone.y
+    (left, right, up, down) = (deltaX <= -threshold, deltaX >= threshold, deltaY <= -threshold, deltaY >= threshold)
+  in
+  case (left, right, up, down) of
+    (True, False, False, False) ->
+      update (FireEvent "left") model
+    (True, False, True, False) ->
+      update (FireEvent "up left") model
+    (True, False, False, True) ->
+      update (FireEvent "down left") model
+    (False, True, False, False) ->
+      update (FireEvent "right") model
+    (False, True, True, False) ->
+      update (FireEvent "up right") model
+    (False, True, False, True) ->
+      update (FireEvent "down right") model
+    (False, False, True, False) ->
+      update (FireEvent "up") model
+    (False, False, False, True) ->
+      update (FireEvent "down") model
+    (_, _, _, _) ->
+      (model, Cmd.none)
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     CursorMoved newPosition ->
-      ({ model | position = newPosition }, Cmd.none)
+      -- depending on displacement, fire some command
+      onCursorMoved newPosition model
+
     MouseClick position ->
       ({ model | cursorActivationZone = {x = position.x, y = position.y, sideLength = 20} }, Cmd.none)
     ButtonEntered ->
@@ -51,7 +81,9 @@ update msg model =
       in
       ({ model | dwellButtons = List.map (\db -> {db | progress = db.progress+10}) model.dwellButtons}
       , Cmd.none)
-    FireEvents ->
+    FireEvent string ->
+      let _ = log "yo" string
+      in
       (model, Cmd.none)
 
 

@@ -9,7 +9,7 @@ type Msg
   | ButtonEntered
   | ButtonLeft
   | Dwell Time
-  | FireEvents
+  | FireEvent String
 
 type alias DwellButton =
   { text: String
