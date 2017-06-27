@@ -3,6 +3,7 @@ module Views exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onMouseEnter, onMouseLeave, onMouseOver, onMouseOut)
+import Mouse exposing (Position)
 
 import Types exposing (..)
 
@@ -51,6 +52,14 @@ cursorZone {x, y, sideLength} =
         ]
   in
   div [myStyle] []
+
+displacement : Position -> Square -> Html Msg
+displacement position square =
+  let
+    deltaX = toString (position.x - square.x)
+    deltaY = toString (position.y - square.y)
+  in
+  text (deltaX ++ " :: " ++ deltaY)
 
 toPixels : Int -> String
 toPixels int =

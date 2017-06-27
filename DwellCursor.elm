@@ -6,7 +6,7 @@ import Mouse exposing (Position, moves, clicks)
 import Time exposing (millisecond, every, Time)
 import Debug exposing (log)
 
-import Views exposing (dwellButton, cursorZone)
+import Views exposing (dwellButton, cursorZone, displacement)
 import Types exposing (..)
 
 main =
@@ -18,9 +18,6 @@ main =
   }
 
 -- MODEL
-
-
-
 type alias Model =
   { position: Position
   , dwellButtons: List DwellButton
@@ -37,8 +34,8 @@ init =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    CursorMoved position ->
-      (model, Cmd.none)
+    CursorMoved newPosition ->
+      ({ model | position = newPosition }, Cmd.none)
     MouseClick position ->
       ({ model | cursorActivationZone = {x = position.x, y = position.y, sideLength = 20} }, Cmd.none)
     ButtonEntered ->
@@ -94,4 +91,8 @@ view {position, dwellButtons, cursorActivationZone} =
     buttons = List.map (\x -> dwellButton x) dwellButtons
   in
   div []
-    ([ text (x ++ " :: " ++ y) ] ++ buttons ++ ([cursorZone cursorActivationZone]))
+    ([ text (x ++ " :: " ++ y) ]
+    ++ buttons
+    ++ ([cursorZone cursorActivationZone])
+    ++ ([displacement position cursorActivationZone])
+    )
