@@ -2,7 +2,7 @@ module Views exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (style)
-import Html.Events exposing (onMouseEnter, onMouseLeave, onMouseOver, onMouseOut)
+import Html.Events exposing (onMouseEnter, onMouseLeave, onMouseOver, onMouseOut, onClick)
 import Mouse exposing (Position)
 
 import Types exposing (..)
@@ -95,6 +95,28 @@ displacement position square =
     deltaY = toString (position.y - square.y)
   in
   text (deltaX ++ " :: " ++ deltaY)
+
+gazeCursor : GazePoint -> Html Msg
+gazeCursor point =
+  let
+    left = toPixels (point.x - 15)
+    right = toPixels (point.y - 15)
+    cursorStyle =
+      style
+        [ ("position", "fixed")
+        , ("height", "30px")
+        , ("width", "30px")
+        , ("left", left)
+        , ("top", right)
+        , ("background-color", "rgba(40,40,40,0.4)")
+        ]
+  in
+  div []
+    [ button [onClick (Send "startTracker")] [text "Start"]
+    , button [onClick (Send "stopTracker")] [text "Stop"]
+    , p [] [text (toString point.x)]
+    , div [cursorStyle] [text "Beep boop"]
+    ]
 
 toPixels : Int -> String
 toPixels int =

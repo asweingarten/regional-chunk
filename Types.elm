@@ -20,6 +20,8 @@ type Msg
   | ButtonLeft
   | Dwell Time
   | FireEvent Direction
+  | NewGazePoint GazePoint
+  | Send String
 
 type alias DwellButton =
   { text: String
@@ -31,4 +33,11 @@ type alias Square =
   { x: Int
   , y: Int
   , sideLength: Int
+  }
+
+type alias GazePoint =
+  { state : Int
+  , timestamp : Int
+  , x : Int
+  , y : Int
   }

@@ -5,9 +5,12 @@ import Html.Attributes exposing (style)
 import Mouse exposing (Position, moves, clicks)
 import Time exposing (millisecond, every, Time)
 import Debug exposing (log)
+import Json.Decode exposing (decodeString)
+import WebSocket
 
-import Views exposing (dwellButton, cursorZone, displacement)
+import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
+import Decoders exposing (gazePointDecoder)
 
 -- TODO
 -- Change Square type to something that better described cursor activation zone
@@ -21,17 +24,27 @@ main =
   , subscriptions = subscriptions
   }
 
+eyeGazeServer : String
+eyeGazeServer =
+  "ws://localhost:8887"
+
 -- MODEL
 type alias Model =
   { position: Position
   , dwellButtons: List DwellButton
   , cursorActivationZone: Square
   , isCursorActive: Bool
+  , gazePoint: GazePoint
   }
 
 init : (Model, Cmd Msg)
 init =
-  (Model { x = -1, y = -1 } [DwellButton "hey" 0 False] { x = 0, y = 0, sideLength = 0} False
+  (Model
+    { x = -1, y = -1 }
+    [DwellButton "hey" 0 False]
+    { x = 0, y = 0, sideLength = 0}
+    False
+    {state = 0, timestamp= 0, x= 0, y= 0}
   , Cmd.none)
 
 -- UPDATE
@@ -97,6 +110,10 @@ update msg model =
       let _ = log "yo" direction
       in
       ({ model | isCursorActive = False }, Cmd.none)
+    NewGazePoint point ->
+      ({ model | gazePoint = point }, Cmd.none)
+    Send msg ->
+      (model, WebSocket.send eyeGazeServer msg)
 
 
 -- SUBSCRIPTIONS
@@ -106,7 +123,20 @@ subscriptions model =
     [ moves CursorMoved
     , clicks MouseClick
     , dwellSubscriptions model.dwellButtons
+    , WebSocket.listen eyeGazeServer receiveMessage
     ]
+
+receiveMessage : String -> Msg
+receiveMessage payload =
+  case decodeString gazePointDecoder payload of
+    Err msg ->
+      let _ = log "error msg" msg
+      in
+      NewGazePoint {state = -1, timestamp= 0, x= 1, y= 5}
+    Ok gazePoint ->
+      let _ = log "payload" payload
+      in
+      NewGazePoint gazePoint
 
 dwellSubscriptions : List DwellButton -> Sub Msg
 dwellSubscriptions dwellButtons =
@@ -126,7 +156,7 @@ dwellSubscription b =
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone, isCursorActive} =
+view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint} =
   let
     x = toString position.x
     y = toString position.y
@@ -137,4 +167,5 @@ view {position, dwellButtons, cursorActivationZone, isCursorActive} =
     ++ buttons
     ++ ([cursorZone cursorActivationZone isCursorActive])
     ++ ([displacement position cursorActivationZone])
+    ++ ([gazeCursor gazePoint])
     )
