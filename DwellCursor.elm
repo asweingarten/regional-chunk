@@ -9,6 +9,10 @@ import Debug exposing (log)
 import Views exposing (dwellButton, cursorZone, displacement)
 import Types exposing (..)
 
+-- TODO
+-- Change Square type to something that better described cursor activation zone
+-- Integrate web sockets
+
 main =
   Html.program
   { init = init
@@ -22,40 +26,44 @@ type alias Model =
   { position: Position
   , dwellButtons: List DwellButton
   , cursorActivationZone: Square
+  , isCursorActive: Bool
   }
 
 init : (Model, Cmd Msg)
 init =
-  (Model { x = -1, y = -1 } [DwellButton "hey" 0 False] { x = 0, y = 0, sideLength = 0}
+  (Model { x = -1, y = -1 } [DwellButton "hey" 0 False] { x = 0, y = 0, sideLength = 0} False
   , Cmd.none)
 
 -- UPDATE
 onCursorMoved : Position -> Model -> (Model, Cmd Msg)
 onCursorMoved newPosition model =
   let
-    threshold = 10
+    threshold = model.cursorActivationZone.sideLength
     deltaX = newPosition.x - model.cursorActivationZone.x
     deltaY = newPosition.y - model.cursorActivationZone.y
-    (left, right, up, down) = (deltaX <= -threshold, deltaX >= threshold, deltaY <= -threshold, deltaY >= threshold)
+    (isActive, left, right, up, down) =
+      (model.isCursorActive, deltaX <= -threshold, deltaX >= threshold, deltaY <= -threshold, deltaY >= threshold)
   in
-  case (left, right, up, down) of
-    (True, False, False, False) ->
-      update (FireEvent "left") model
-    (True, False, True, False) ->
-      update (FireEvent "up left") model
-    (True, False, False, True) ->
-      update (FireEvent "down left") model
-    (False, True, False, False) ->
-      update (FireEvent "right") model
-    (False, True, True, False) ->
-      update (FireEvent "up right") model
-    (False, True, False, True) ->
-      update (FireEvent "down right") model
-    (False, False, True, False) ->
-      update (FireEvent "up") model
-    (False, False, False, True) ->
-      update (FireEvent "down") model
-    (_, _, _, _) ->
+  case (isActive, left, right, up, down) of
+    (True, True, False, False, False) ->
+      update (FireEvent West) model
+    (True, True, False, True, False) ->
+      update (FireEvent Northwest) model
+    (True, True, False, False, True) ->
+      update (FireEvent Southwest) model
+    (True, False, True, False, False) ->
+      update (FireEvent East) model
+    (True, False, True, True, False) ->
+      update (FireEvent Northeast) model
+    (True, False, True, False, True) ->
+      update (FireEvent Southeast) model
+    (True, False, False, True, False) ->
+      update (FireEvent North) model
+    (True, False, False, False, True) ->
+      update (FireEvent South) model
+    (False, False, False, False, False) ->
+      ({model | isCursorActive = True}, Cmd.none)
+    (_,_, _, _, _) ->
       (model, Cmd.none)
 
 
@@ -67,7 +75,11 @@ update msg model =
       onCursorMoved newPosition model
 
     MouseClick position ->
-      ({ model | cursorActivationZone = {x = position.x, y = position.y, sideLength = 20} }, Cmd.none)
+      ({ model
+        | cursorActivationZone = {x = position.x, y = position.y, sideLength = 100}
+        , isCursorActive = True
+        }
+      , Cmd.none)
     ButtonEntered ->
       let _ = log "button entered" 5
       in
@@ -81,10 +93,10 @@ update msg model =
       in
       ({ model | dwellButtons = List.map (\db -> {db | progress = db.progress+10}) model.dwellButtons}
       , Cmd.none)
-    FireEvent string ->
-      let _ = log "yo" string
+    FireEvent direction ->
+      let _ = log "yo" direction
       in
-      (model, Cmd.none)
+      ({ model | isCursorActive = False }, Cmd.none)
 
 
 -- SUBSCRIPTIONS
@@ -105,8 +117,6 @@ dwellSubscriptions dwellButtons =
 
 dwellSubscription : DwellButton -> Sub Msg
 dwellSubscription b =
-  let _ = log "b" b
-  in
   case b.active of
     True ->
       every (200*millisecond) Dwell
@@ -116,7 +126,7 @@ dwellSubscription b =
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone} =
+view {position, dwellButtons, cursorActivationZone, isCursorActive} =
   let
     x = toString position.x
     y = toString position.y
@@ -125,6 +135,6 @@ view {position, dwellButtons, cursorActivationZone} =
   div []
     ([ text (x ++ " :: " ++ y) ]
     ++ buttons
-    ++ ([cursorZone cursorActivationZone])
+    ++ ([cursorZone cursorActivationZone isCursorActive])
     ++ ([displacement position cursorActivationZone])
     )

@@ -35,12 +35,17 @@ dwellButton {text, progress} =
       []
     ]
 
-cursorZone : Square -> Html Msg
-cursorZone {x, y, sideLength} =
+cursorZone : Square -> Bool -> Html Msg
+cursorZone {x, y, sideLength} isActive =
   let
-    left = toPixels x
-    top = toPixels y
-    len = toPixels sideLength
+    left = toPixels (x - sideLength)
+    top = toPixels (y - sideLength)
+    len = toPixels (sideLength * 2)
+    color = case isActive of
+      True ->
+        "rgba(25,25,75,0.8)"
+      False ->
+        "rgba(25,25,75,0.2)"
     myStyle =
       style
         [ ("position", "fixed")
@@ -48,10 +53,40 @@ cursorZone {x, y, sideLength} =
         , ("top", top)
         , ("width", len)
         , ("height", len)
-        , ("background-color", "rgba(25,25,75,0.4)")
+        , ("background-color", color)
+        ]
+    westStyle =
+      style
+        [ ("position", "fixed")
+        , ("left", toPixels (x - sideLength - 45))
+        , ("top", toPixels (y - 12))
+        ]
+    northStyle =
+      style
+        [ ("position", "fixed")
+        , ("left", toPixels (x - 24))
+        , ("top", toPixels (y - sideLength - 18))
+        ]
+    eastStyle =
+      style
+        [ ("position", "fixed")
+        , ("left", toPixels (x + sideLength))
+        , ("top", toPixels (y - 12))
+        ]
+    southStyle =
+      style
+        [ ("position", "fixed")
+        , ("left", toPixels (x - 24))
+        , ("top", toPixels (y + sideLength))
         ]
   in
-  div [myStyle] []
+  div []
+    [ div [myStyle] []
+    , div [westStyle] [text "West"]
+    , div [northStyle] [text "North"]
+    , div [eastStyle] [text "East"]
+    , div [southStyle] [text "South"]
+    ]
 
 displacement : Position -> Square -> Html Msg
 displacement position square =
