@@ -88,6 +88,38 @@ onCursorMoved newPosition model =
     (_,_, _, _, _) ->
       (model, Cmd.none)
 
+onGazeMoved : GazePoint -> Model -> (Model, Cmd Msg)
+onGazeMoved gazePoint model =
+  let
+    threshold = model.cursorActivationZone.sideLength
+    deltaX = gazePoint.x - model.cursorActivationZone.x
+    deltaY = gazePoint.y - model.cursorActivationZone.y
+    (isActive, left, right, up, down) =
+      (model.isCursorActive, deltaX <= -threshold, deltaX >= threshold, deltaY <= -threshold, deltaY >= threshold)
+    updatedModel = { model | gazePoint = gazePoint }
+  in
+  case (isActive, left, right, up, down) of
+    (True, True, False, False, False) ->
+      update (FireEvent West) updatedModel
+    (True, True, False, True, False) ->
+      update (FireEvent Northwest) updatedModel
+    (True, True, False, False, True) ->
+      update (FireEvent Southwest) updatedModel
+    (True, False, True, False, False) ->
+      update (FireEvent East) updatedModel
+    (True, False, True, True, False) ->
+      update (FireEvent Northeast) updatedModel
+    (True, False, True, False, True) ->
+      update (FireEvent Southeast) updatedModel
+    (True, False, False, True, False) ->
+      update (FireEvent North) updatedModel
+    (True, False, False, False, True) ->
+      update (FireEvent South) updatedModel
+    (False, False, False, False, False) ->
+      ({updatedModel | isCursorActive = True}, Cmd.none)
+    (_,_, _, _, _) ->
+      (updatedModel, Cmd.none)
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -98,7 +130,7 @@ update msg model =
 
     MouseClick position ->
       ({ model
-        | cursorActivationZone = {x = position.x, y = position.y, sideLength = 100}
+        | cursorActivationZone = {x = position.x, y = position.y, sideLength = 200}
         , isCursorActive = True
         }
       , Cmd.none)
@@ -120,7 +152,8 @@ update msg model =
       in
       ({ model | isCursorActive = False }, Cmd.none)
     NewGazePoint point ->
-      ({ model | gazePoint = point }, Cmd.none)
+      onGazeMoved point model
+      -- ({ model | gazePoint = point }, Cmd.none)
     Send msg ->
       (model, WebSocket.send eyeGazeServer msg)
     WindowResize wSize ->
