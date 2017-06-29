@@ -58,26 +58,30 @@ cursorZone {x, y, sideLength} isActive =
     westStyle =
       style
         [ ("position", "fixed")
-        , ("left", toPixels (x - sideLength - 45))
+        , ("left", toPixels (x - sideLength - 120))
         , ("top", toPixels (y - 12))
+        , ("font-size", toPixels 48 )
         ]
     northStyle =
       style
         [ ("position", "fixed")
         , ("left", toPixels (x - 24))
-        , ("top", toPixels (y - sideLength - 18))
+        , ("top", toPixels (y - sideLength - 70))
+        , ("font-size", toPixels 48 )
         ]
     eastStyle =
       style
         [ ("position", "fixed")
         , ("left", toPixels (x + sideLength))
         , ("top", toPixels (y - 12))
+        , ("font-size", toPixels 48 )
         ]
     southStyle =
       style
         [ ("position", "fixed")
         , ("left", toPixels (x - 24))
         , ("top", toPixels (y + sideLength))
+        , ("font-size", toPixels 48 )
         ]
   in
   div []
@@ -115,7 +119,7 @@ gazeCursor point =
     [ button [onClick (Send "startTracker")] [text "Start"]
     , button [onClick (Send "stopTracker")] [text "Stop"]
     , p [] [text (toString point.x)]
-    , div [cursorStyle] [text "Beep boop"]
+    , div [cursorStyle] []
     ]
 
 toPixels : Int -> String

@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (style, class)
 import Mouse exposing (Position, moves, clicks)
 import Time exposing (Time)
 import Debug exposing (log)
@@ -42,6 +42,7 @@ type alias Model =
   , gazePoint: GazePoint
   , windowSize : Size
   , screenSize : Size
+  , direction : Maybe Direction
   }
 
 init : (Model, Cmd Msg)
@@ -54,6 +55,7 @@ init =
     {state = 0, timestamp= 0, x= 0, y= 0}
     (Size 0 0)
     (Size 0 0)
+    Nothing
   , Task.perform WindowResize Window.size)
 
 -- UPDATE
@@ -88,39 +90,6 @@ onCursorMoved newPosition model =
     (_,_, _, _, _) ->
       (model, Cmd.none)
 
-onGazeMoved : GazePoint -> Model -> (Model, Cmd Msg)
-onGazeMoved gazePoint model =
-  let
-    threshold = model.cursorActivationZone.sideLength
-    deltaX = gazePoint.x - model.cursorActivationZone.x
-    deltaY = gazePoint.y - model.cursorActivationZone.y
-    (isActive, left, right, up, down) =
-      (model.isCursorActive, deltaX <= -threshold, deltaX >= threshold, deltaY <= -threshold, deltaY >= threshold)
-    updatedModel = { model | gazePoint = gazePoint }
-  in
-  case (isActive, left, right, up, down) of
-    (True, True, False, False, False) ->
-      update (FireEvent West) updatedModel
-    (True, True, False, True, False) ->
-      update (FireEvent Northwest) updatedModel
-    (True, True, False, False, True) ->
-      update (FireEvent Southwest) updatedModel
-    (True, False, True, False, False) ->
-      update (FireEvent East) updatedModel
-    (True, False, True, True, False) ->
-      update (FireEvent Northeast) updatedModel
-    (True, False, True, False, True) ->
-      update (FireEvent Southeast) updatedModel
-    (True, False, False, True, False) ->
-      update (FireEvent North) updatedModel
-    (True, False, False, False, True) ->
-      update (FireEvent South) updatedModel
-    (False, False, False, False, False) ->
-      ({updatedModel | isCursorActive = True}, Cmd.none)
-    (_,_, _, _, _) ->
-      (updatedModel, Cmd.none)
-
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -150,10 +119,13 @@ update msg model =
     FireEvent direction ->
       let _ = log "yo" direction
       in
-      ({ model | isCursorActive = False }, Cmd.none)
+      ({ model
+       | isCursorActive = False
+       , direction = Just direction
+      }
+      , Cmd.none)
     NewGazePoint point ->
-      onGazeMoved point model
-      -- ({ model | gazePoint = point }, Cmd.none)
+      onCursorMoved (Position point.x point.y) { model | gazePoint = point }
     Send msg ->
       (model, WebSocket.send eyeGazeServer msg)
     WindowResize wSize ->
@@ -185,15 +157,15 @@ receiveMessage screenSize windowSize payload =
     Ok gp ->
       let
         _ = log "payload" payload
-        x = round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
-        y = round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
+        x = round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
+        y = round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
       in
       NewGazePoint (GazePoint gp.state gp.timestamp x y)
 
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize, screenSize} =
+view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize, screenSize, direction} =
   let
     x = toString position.x
     y = toString position.y
@@ -202,6 +174,11 @@ view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, w
     sWidth = toString screenSize.width
     sHeight = toString screenSize.height
     buttons = List.map (\x -> dwellButton x) dwellButtons
+    myStyle =
+      style
+        [ ("margin", "0 auto")
+        , ("font-size", "48")
+        ]
   in
   div []
     ([ text ("cursor pos: " ++ x ++ " :: " ++ y)
@@ -212,4 +189,5 @@ view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, w
     ++ ([cursorZone cursorActivationZone isCursorActive])
     ++ ([displacement position cursorActivationZone])
     ++ ([gazeCursor gazePoint])
+    ++ ([div [class "div", myStyle] [text <| toString direction]])
     )
