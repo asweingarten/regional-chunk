@@ -10,7 +10,7 @@ import WebSocket
 
 import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
-import Decoders exposing (gazePointDecoder)
+import Decoders exposing (gazePointJsonDecoder)
 
 -- TODO
 -- Change Square type to something that better described cursor activation zone
@@ -128,15 +128,15 @@ subscriptions model =
 
 receiveMessage : String -> Msg
 receiveMessage payload =
-  case decodeString gazePointDecoder payload of
+  case decodeString gazePointJsonDecoder payload of
     Err msg ->
       let _ = log "error msg" msg
       in
       NewGazePoint {state = -1, timestamp= 0, x= 1, y= 5}
-    Ok gazePoint ->
+    Ok gp ->
       let _ = log "payload" payload
       in
-      NewGazePoint gazePoint
+      NewGazePoint (GazePoint gp.state gp.timestamp (round gp.x) (round gp.y))
 
 dwellSubscriptions : List DwellButton -> Sub Msg
 dwellSubscriptions dwellButtons =
