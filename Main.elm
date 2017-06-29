@@ -1,9 +1,9 @@
-module DwellCursor exposing (..)
+module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (style)
 import Mouse exposing (Position, moves, clicks)
-import Time exposing (millisecond, every, Time)
+import Time exposing (Time)
 import Debug exposing (log)
 import Json.Decode exposing (decodeString)
 import WebSocket
@@ -13,7 +13,7 @@ import Task
 import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
 import Decoders exposing (gazePointJsonDecoder)
-
+import DwellButton exposing (..)
 -- TODO
 -- Change Square type to something that better described cursor activation zone
 -- Integrate web sockets
@@ -144,21 +144,6 @@ receiveMessage payload =
       let _ = log "payload" payload
       in
       NewGazePoint (GazePoint gp.state gp.timestamp (round gp.x) (round gp.y))
-
-dwellSubscriptions : List DwellButton -> Sub Msg
-dwellSubscriptions dwellButtons =
-  let
-    subs = List.map dwellSubscription dwellButtons
-  in
-  Sub.batch subs
-
-dwellSubscription : DwellButton -> Sub Msg
-dwellSubscription b =
-  case b.active of
-    True ->
-      every (200*millisecond) Dwell
-    False ->
-      Sub.none
 
 -- VIEW
 
