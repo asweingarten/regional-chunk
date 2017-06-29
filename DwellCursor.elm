@@ -7,6 +7,8 @@ import Time exposing (millisecond, every, Time)
 import Debug exposing (log)
 import Json.Decode exposing (decodeString)
 import WebSocket
+import Window exposing (resizes, Size)
+import Task
 
 import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
@@ -35,6 +37,7 @@ type alias Model =
   , cursorActivationZone: Square
   , isCursorActive: Bool
   , gazePoint: GazePoint
+  , windowSize : Size
   }
 
 init : (Model, Cmd Msg)
@@ -45,7 +48,8 @@ init =
     { x = 0, y = 0, sideLength = 0}
     False
     {state = 0, timestamp= 0, x= 0, y= 0}
-  , Cmd.none)
+    (Size 0 0)
+  , Task.perform WindowResize Window.size)
 
 -- UPDATE
 onCursorMoved : Position -> Model -> (Model, Cmd Msg)
@@ -114,6 +118,8 @@ update msg model =
       ({ model | gazePoint = point }, Cmd.none)
     Send msg ->
       (model, WebSocket.send eyeGazeServer msg)
+    WindowResize wSize ->
+      ({ model | windowSize = wSize }, Cmd.none)
 
 
 -- SUBSCRIPTIONS
@@ -124,6 +130,7 @@ subscriptions model =
     , clicks MouseClick
     , dwellSubscriptions model.dwellButtons
     , WebSocket.listen eyeGazeServer receiveMessage
+    , resizes WindowResize
     ]
 
 receiveMessage : String -> Msg
@@ -156,14 +163,18 @@ dwellSubscription b =
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint} =
+view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize} =
   let
     x = toString position.x
     y = toString position.y
+    wWidth = toString windowSize.width
+    wHeight = toString windowSize.height
     buttons = List.map (\x -> dwellButton x) dwellButtons
   in
   div []
-    ([ text (x ++ " :: " ++ y) ]
+    ([ text ("cursor pos: " ++ x ++ " :: " ++ y)
+    , text ("window size: " ++ wWidth ++ " :: " ++ wHeight)
+    ]
     ++ buttons
     ++ ([cursorZone cursorActivationZone isCursorActive])
     ++ ([displacement position cursorActivationZone])

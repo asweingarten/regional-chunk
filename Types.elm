@@ -2,6 +2,7 @@ module Types exposing (..)
 
 import Time exposing(Time)
 import Mouse exposing(Position)
+import Window exposing(Size)
 
 type Direction
   = West
@@ -22,6 +23,7 @@ type Msg
   | FireEvent Direction
   | NewGazePoint GazePoint
   | Send String
+  | WindowResize Size
 
 type alias DwellButton =
   { text: String
