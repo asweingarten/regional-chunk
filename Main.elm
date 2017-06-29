@@ -14,6 +14,9 @@ import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
 import Decoders exposing (gazePointJsonDecoder)
 import DwellButton exposing (..)
+
+import Screen exposing (screenSize)
+
 -- TODO
 -- Change Square type to something that better described cursor activation zone
 -- Integrate web sockets
@@ -38,6 +41,7 @@ type alias Model =
   , isCursorActive: Bool
   , gazePoint: GazePoint
   , windowSize : Size
+  , screenSize : Size
   }
 
 init : (Model, Cmd Msg)
@@ -48,6 +52,7 @@ init =
     { x = 0, y = 0, sideLength = 0}
     False
     {state = 0, timestamp= 0, x= 0, y= 0}
+    (Size 0 0)
     (Size 0 0)
   , Task.perform WindowResize Window.size)
 
@@ -120,6 +125,9 @@ update msg model =
       (model, WebSocket.send eyeGazeServer msg)
     WindowResize wSize ->
       ({ model | windowSize = wSize }, Cmd.none)
+    ScreenSize sSize ->
+      ({ model | screenSize = sSize }, Cmd.none)
+
 
 
 -- SUBSCRIPTIONS
@@ -129,36 +137,43 @@ subscriptions model =
     [ moves CursorMoved
     , clicks MouseClick
     , dwellSubscriptions model.dwellButtons
-    , WebSocket.listen eyeGazeServer receiveMessage
+    , WebSocket.listen eyeGazeServer (receiveMessage model.screenSize model.windowSize)
     , resizes WindowResize
+    , screenSize ScreenSize
     ]
 
-receiveMessage : String -> Msg
-receiveMessage payload =
+receiveMessage : Size -> Size -> String -> Msg
+receiveMessage screenSize windowSize payload =
   case decodeString gazePointJsonDecoder payload of
     Err msg ->
       let _ = log "error msg" msg
       in
       NewGazePoint {state = -1, timestamp= 0, x= 1, y= 5}
     Ok gp ->
-      let _ = log "payload" payload
+      let
+        _ = log "payload" payload
+        x = round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
+        y = round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
       in
-      NewGazePoint (GazePoint gp.state gp.timestamp (round gp.x) (round gp.y))
+      NewGazePoint (GazePoint gp.state gp.timestamp x y)
 
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize} =
+view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize, screenSize} =
   let
     x = toString position.x
     y = toString position.y
     wWidth = toString windowSize.width
     wHeight = toString windowSize.height
+    sWidth = toString screenSize.width
+    sHeight = toString screenSize.height
     buttons = List.map (\x -> dwellButton x) dwellButtons
   in
   div []
     ([ text ("cursor pos: " ++ x ++ " :: " ++ y)
     , text ("window size: " ++ wWidth ++ " :: " ++ wHeight)
+    , text ("screen size: " ++ sWidth ++ " :: " ++ sHeight)
     ]
     ++ buttons
     ++ ([cursorZone cursorActivationZone isCursorActive])

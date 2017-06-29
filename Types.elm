@@ -24,6 +24,7 @@ type Msg
   | NewGazePoint GazePoint
   | Send String
   | WindowResize Size
+  | ScreenSize Size
 
 type alias DwellButton =
   { text: String
