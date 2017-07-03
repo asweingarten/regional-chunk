@@ -44,10 +44,3 @@ type alias GazePoint =
   , x : Int
   , y : Int
   }
-
-type alias GazePointJson =
-  { state : Int
-  , timestamp : Int
-  , x : Float
-  , y : Float
-  }

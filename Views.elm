@@ -100,7 +100,7 @@ displacement position square =
   in
   text (deltaX ++ " :: " ++ deltaY)
 
-gazeCursor : GazePoint -> Html Msg
+gazeCursor : Position -> Html Msg
 gazeCursor point =
   let
     left = toPixels (point.x - 15)

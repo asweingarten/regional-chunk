@@ -5,21 +5,17 @@ import Html.Attributes exposing (style, class)
 import Mouse exposing (Position, moves, clicks)
 import Time exposing (Time)
 import Debug exposing (log)
-import Json.Decode exposing (decodeString)
-import WebSocket
 import Window exposing (resizes, Size)
+import Screen exposing (screenSize)
 import Task
 
 import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
 import Types exposing (..)
-import Decoders exposing (gazePointJsonDecoder)
 import DwellButton exposing (..)
-
-import Screen exposing (screenSize)
+import EyeTracker
 
 -- TODO
 -- Change Square type to something that better described cursor activation zone
--- Integrate web sockets
 
 main =
   Html.program
@@ -29,17 +25,13 @@ main =
   , subscriptions = subscriptions
   }
 
-eyeGazeServer : String
-eyeGazeServer =
-  "ws://localhost:8887"
-
 -- MODEL
 type alias Model =
-  { position: Position
+  { mousePosition: Position
   , dwellButtons: List DwellButton
   , cursorActivationZone: Square
   , isCursorActive: Bool
-  , gazePoint: GazePoint
+  , gazePosition: Position
   , windowSize : Size
   , screenSize : Size
   , direction : Maybe Direction
@@ -52,7 +44,7 @@ init =
     [DwellButton "hey" 0 False]
     { x = 0, y = 0, sideLength = 0}
     False
-    {state = 0, timestamp= 0, x= 0, y= 0}
+    {x = 0, y = 0}
     (Size 0 0)
     (Size 0 0)
     Nothing
@@ -125,9 +117,9 @@ update msg model =
       }
       , Cmd.none)
     NewGazePoint point ->
-      onCursorMoved (Position point.x point.y) { model | gazePoint = point }
+      onCursorMoved (Position point.x point.y) { model | gazePosition = (Position point.x point.y) }
     Send msg ->
-      (model, WebSocket.send eyeGazeServer msg)
+      (model, EyeTracker.send msg)
     WindowResize wSize ->
       ({ model | windowSize = wSize }, Cmd.none)
     ScreenSize sSize ->
@@ -142,33 +134,20 @@ subscriptions model =
     [ moves CursorMoved
     , clicks MouseClick
     , dwellSubscriptions model.dwellButtons
-    , WebSocket.listen eyeGazeServer (receiveMessage model.screenSize model.windowSize)
+    , EyeTracker.subscription model.screenSize model.windowSize
     , resizes WindowResize
     , screenSize ScreenSize
     ]
 
-receiveMessage : Size -> Size -> String -> Msg
-receiveMessage screenSize windowSize payload =
-  case decodeString gazePointJsonDecoder payload of
-    Err msg ->
-      let _ = log "error msg" msg
-      in
-      NewGazePoint {state = -1, timestamp= 0, x= 1, y= 5}
-    Ok gp ->
-      let
-        _ = log "payload" payload
-        x = round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
-        y = round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
-      in
-      NewGazePoint (GazePoint gp.state gp.timestamp x y)
+
 
 -- VIEW
 
 view : Model -> Html Msg
-view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, windowSize, screenSize, direction} =
+view {mousePosition, dwellButtons, cursorActivationZone, isCursorActive, gazePosition, windowSize, screenSize, direction} =
   let
-    x = toString position.x
-    y = toString position.y
+    x = toString mousePosition.x
+    y = toString mousePosition.y
     wWidth = toString windowSize.width
     wHeight = toString windowSize.height
     sWidth = toString screenSize.width
@@ -187,7 +166,7 @@ view {position, dwellButtons, cursorActivationZone, isCursorActive, gazePoint, w
     ]
     ++ buttons
     ++ ([cursorZone cursorActivationZone isCursorActive])
-    ++ ([displacement position cursorActivationZone])
-    ++ ([gazeCursor gazePoint])
+    ++ ([displacement mousePosition cursorActivationZone])
+    ++ ([gazeCursor gazePosition])
     ++ ([div [class "div", myStyle] [text <| toString direction]])
     )
