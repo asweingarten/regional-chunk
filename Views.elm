@@ -35,71 +35,6 @@ dwellButton {text, progress} =
       []
     ]
 
-cursorZone : Square -> Bool -> Html Msg
-cursorZone {x, y, sideLength} isActive =
-  let
-    left = toPixels (x - sideLength)
-    top = toPixels (y - sideLength)
-    len = toPixels (sideLength * 2)
-    color = case isActive of
-      True ->
-        "rgba(25,25,75,0.8)"
-      False ->
-        "rgba(25,25,75,0.2)"
-    myStyle =
-      style
-        [ ("position", "fixed")
-        , ("left", left)
-        , ("top", top)
-        , ("width", len)
-        , ("height", len)
-        , ("background-color", color)
-        ]
-    westStyle =
-      style
-        [ ("position", "fixed")
-        , ("left", toPixels (x - sideLength - 120))
-        , ("top", toPixels (y - 12))
-        , ("font-size", toPixels 48 )
-        ]
-    northStyle =
-      style
-        [ ("position", "fixed")
-        , ("left", toPixels (x - 24))
-        , ("top", toPixels (y - sideLength - 70))
-        , ("font-size", toPixels 48 )
-        ]
-    eastStyle =
-      style
-        [ ("position", "fixed")
-        , ("left", toPixels (x + sideLength))
-        , ("top", toPixels (y - 12))
-        , ("font-size", toPixels 48 )
-        ]
-    southStyle =
-      style
-        [ ("position", "fixed")
-        , ("left", toPixels (x - 24))
-        , ("top", toPixels (y + sideLength))
-        , ("font-size", toPixels 48 )
-        ]
-  in
-  div []
-    [ div [myStyle] []
-    , div [westStyle] [text "West"]
-    , div [northStyle] [text "North"]
-    , div [eastStyle] [text "East"]
-    , div [southStyle] [text "South"]
-    ]
-
-displacement : Position -> Square -> Html Msg
-displacement position square =
-  let
-    deltaX = toString (position.x - square.x)
-    deltaY = toString (position.y - square.y)
-  in
-  text (deltaX ++ " :: " ++ deltaY)
-
 gazeCursor : Position -> Html Msg
 gazeCursor point =
   let
@@ -121,6 +56,14 @@ gazeCursor point =
     , p [] [text (toString point.x)]
     , div [cursorStyle] []
     ]
+
+displacement : Position -> Square -> Html Msg
+displacement position square =
+  let
+    deltaX = toString (position.x - square.x)
+    deltaY = toString (position.y - square.y)
+  in
+  text (deltaX ++ " :: " ++ deltaY)
 
 toPixels : Int -> String
 toPixels int =

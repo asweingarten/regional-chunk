@@ -14,13 +14,18 @@ type Direction
   | Southwest
   | Southeast
 
+type alias DwellCommand =
+  { direction : Direction
+  , progress  : Int
+  }
+
 type Msg
   = CursorMoved Position
   | MouseClick Position
   | ButtonEntered
   | ButtonLeft
-  | Dwell Time
-  | FireEvent Direction
+  | Dwell Direction Time
+  | ChangeDirection Direction
   | NewGazePoint GazePoint
   | Send String
   | WindowResize Size

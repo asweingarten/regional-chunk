@@ -9,9 +9,9 @@ import Window exposing (resizes, Size)
 import Screen exposing (screenSize)
 import Task
 
-import Views exposing (dwellButton, cursorZone, displacement, gazeCursor)
+import Views exposing (dwellButton, displacement, gazeCursor)
+import CommandSquare exposing (commandSquare, dwellCommandSubscription)
 import Types exposing (..)
-import DwellButton exposing (..)
 import EyeTracker
 
 -- TODO
@@ -28,25 +28,25 @@ main =
 -- MODEL
 type alias Model =
   { mousePosition: Position
-  , dwellButtons: List DwellButton
   , cursorActivationZone: Square
   , isCursorActive: Bool
   , gazePosition: Position
   , windowSize : Size
   , screenSize : Size
   , direction : Maybe Direction
+  , activeCommand : Maybe DwellCommand
   }
 
 init : (Model, Cmd Msg)
 init =
   (Model
     { x = -1, y = -1 }
-    [DwellButton "hey" 0 False]
     { x = 0, y = 0, sideLength = 0}
     False
     {x = 0, y = 0}
     (Size 0 0)
     (Size 0 0)
+    Nothing
     Nothing
   , Task.perform WindowResize Window.size)
 
@@ -62,21 +62,21 @@ onCursorMoved newPosition model =
   in
   case (isActive, left, right, up, down) of
     (True, True, False, False, False) ->
-      update (FireEvent West) model
+      update (ChangeDirection West) model
     (True, True, False, True, False) ->
-      update (FireEvent Northwest) model
+      update (ChangeDirection Northwest) model
     (True, True, False, False, True) ->
-      update (FireEvent Southwest) model
+      update (ChangeDirection Southwest) model
     (True, False, True, False, False) ->
-      update (FireEvent East) model
+      update (ChangeDirection East) model
     (True, False, True, True, False) ->
-      update (FireEvent Northeast) model
+      update (ChangeDirection Northeast) model
     (True, False, True, False, True) ->
-      update (FireEvent Southeast) model
+      update (ChangeDirection Southeast) model
     (True, False, False, True, False) ->
-      update (FireEvent North) model
+      update (ChangeDirection North) model
     (True, False, False, False, True) ->
-      update (FireEvent South) model
+      update (ChangeDirection South) model
     (False, False, False, False, False) ->
       ({model | isCursorActive = True}, Cmd.none)
     (_,_, _, _, _) ->
@@ -86,9 +86,7 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     CursorMoved newPosition ->
-      -- depending on displacement, fire some command
       onCursorMoved newPosition model
-
     MouseClick position ->
       ({ model
         | cursorActivationZone = {x = position.x, y = position.y, sideLength = 200}
@@ -98,24 +96,38 @@ update msg model =
     ButtonEntered ->
       let _ = log "button entered" 5
       in
-      ({ model | dwellButtons = List.map (\db -> {db | active = True}) model.dwellButtons}, Cmd.none)
+      (model, Cmd.none)
     ButtonLeft ->
       let _ = log "button entered" 5
       in
-      ({ model | dwellButtons = List.map (\db -> {db | active = False, progress = 0 }) model.dwellButtons}, Cmd.none)
-    Dwell time ->
-      let _ = log "time" time
+      (model, Cmd.none)
+    Dwell direction time ->
+      let
+        _ = log "time" time
+        activeCommand =
+          case model.activeCommand of
+            Nothing ->
+              { direction = direction, progress = 1 }
+            Just command ->
+              { command | progress = (command.progress + 1) % 10 }
       in
-      ({ model | dwellButtons = List.map (\db -> {db | progress = db.progress+10}) model.dwellButtons}
-      , Cmd.none)
-    FireEvent direction ->
-      let _ = log "yo" direction
+      case activeCommand.progress == 0 of
+        False ->
+          ({model | activeCommand = Just activeCommand }, Cmd.none)
+        True ->
+          ({ model | activeCommand = Nothing, direction = Nothing }, Cmd.none) -- FIRE THE COMMAND
+    ChangeDirection direction ->
+      let
+        _ = log "yo" direction
+        activeCommand =
+          case model.activeCommand of
+            Nothing -> { direction = direction, progress = 0 }
+            Just command ->
+              case command.direction == direction of
+                True -> command
+                False -> { direction = direction, progress = 0 }
       in
-      ({ model
-       | isCursorActive = False
-       , direction = Just direction
-      }
-      , Cmd.none)
+        ({model | direction = Just direction, activeCommand = Just activeCommand }, Cmd.none)
     NewGazePoint point ->
       onCursorMoved (Position point.x point.y) { model | gazePosition = (Position point.x point.y) }
     Send msg ->
@@ -126,25 +138,22 @@ update msg model =
       ({ model | screenSize = sSize }, Cmd.none)
 
 
-
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ moves CursorMoved
     , clicks MouseClick
-    , dwellSubscriptions model.dwellButtons
     , EyeTracker.subscription model.screenSize model.windowSize
     , resizes WindowResize
     , screenSize ScreenSize
+    , dwellCommandSubscription model.activeCommand
     ]
-
-
 
 -- VIEW
 
 view : Model -> Html Msg
-view {mousePosition, dwellButtons, cursorActivationZone, isCursorActive, gazePosition, windowSize, screenSize, direction} =
+view {mousePosition, cursorActivationZone, isCursorActive, gazePosition, windowSize, screenSize, direction, activeCommand} =
   let
     x = toString mousePosition.x
     y = toString mousePosition.y
@@ -152,7 +161,14 @@ view {mousePosition, dwellButtons, cursorActivationZone, isCursorActive, gazePos
     wHeight = toString windowSize.height
     sWidth = toString screenSize.width
     sHeight = toString screenSize.height
-    buttons = List.map (\x -> dwellButton x) dwellButtons
+    progress =
+      case activeCommand of
+        Nothing -> toString 0
+        Just command -> toString command.progress
+    justDirection =
+      case direction of
+        Nothing -> ""
+        Just d -> toString d
     myStyle =
       style
         [ ("margin", "0 auto")
@@ -164,9 +180,8 @@ view {mousePosition, dwellButtons, cursorActivationZone, isCursorActive, gazePos
     , text ("window size: " ++ wWidth ++ " :: " ++ wHeight)
     , text ("screen size: " ++ sWidth ++ " :: " ++ sHeight)
     ]
-    ++ buttons
-    ++ ([cursorZone cursorActivationZone isCursorActive])
+    ++ ([commandSquare cursorActivationZone isCursorActive activeCommand])
     ++ ([displacement mousePosition cursorActivationZone])
     ++ ([gazeCursor gazePosition])
-    ++ ([div [class "div", myStyle] [text <| toString direction]])
+    ++ ([div [class "div", myStyle] [text <| justDirection ++  " " ++ progress]])
     )
