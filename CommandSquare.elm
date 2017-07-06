@@ -92,6 +92,7 @@ commandProgressDot command x y halfSideLength =
         , ("width", toPixels <| dotRadius * 2)
         , ("height", toPixels <| dotRadius * 2)
         , ("background-color", "rgba(224, 255, 255, 0.8)")
+        , ("border-radius", toPixels dotRadius)
         ]
   in
   div [progressDotStyle] []
