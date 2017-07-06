@@ -115,7 +115,7 @@ update msg model =
         False ->
           ({model | activeCommand = Just activeCommand }, Cmd.none)
         True ->
-          ({ model | activeCommand = Nothing, direction = Nothing }, Cmd.none) -- FIRE THE COMMAND
+          ({ model | activeCommand = Nothing, direction = Nothing, isCursorActive = False }, Cmd.none) -- FIRE THE COMMAND
     ChangeDirection direction ->
       let
         _ = log "yo" direction
