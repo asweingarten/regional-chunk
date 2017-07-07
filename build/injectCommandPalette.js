@@ -17,18 +17,18 @@ CommandPalette.ports.commandFired.subscribe(direction => {
     case "North":
       // something
       if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd('Up');
+        TreeNavigation.ports.receiveExternalCmd.send('Up');
       }
       break;
     case "East":
       if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd('Next');
+        TreeNavigation.ports.receiveExternalCmd.send('Next');
       }
       break;
 
     case "South":
       if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd('Select');
+        TreeNavigation.ports.receiveExternalCmd.send('Select');
       }
       break;
 
