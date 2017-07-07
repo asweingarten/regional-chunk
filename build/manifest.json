@@ -14,7 +14,7 @@
     {
       "matches": ["https://*/*"],
       "css": [],
-      "js": ["main.js", "injectCommandPalette.js"]
+      "js": ["commandPalette.js", "injectCommandPalette.js"]
     }
   ],
 
