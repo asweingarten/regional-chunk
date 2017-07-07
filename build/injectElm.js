@@ -10,4 +10,23 @@ eyeGazeOverlay.style['z-index'] = 9999999;
 document.body.appendChild(eyeGazeOverlay);
 
 const app = Elm.Main.embed(eyeGazeOverlay);
-app.ports.screenSize.send({width: screen.width, height: screen.height})
+app.ports.screenSize.send({width: screen.width, height: screen.height});
+
+app.ports.commandFired.subscribe(direction => {
+  switch (direction) {
+    case "North":
+      // something
+      break;
+    case "East":
+
+      break;
+
+    case "South":
+
+      break;
+
+    case "West":
+
+      break;
+  }
+})

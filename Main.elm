@@ -13,6 +13,7 @@ import Views exposing (dwellButton, displacement, gazeCursor)
 import CommandSquare exposing (commandSquare, dwellCommandSubscription)
 import Types exposing (..)
 import EyeTracker
+import Ports
 
 -- TODO
 -- Change Square type to something that better described cursor activation zone
@@ -115,7 +116,7 @@ update msg model =
         False ->
           ({model | activeCommand = Just activeCommand }, Cmd.none)
         True ->
-          ({ model | activeCommand = Nothing, direction = Nothing, isCursorActive = False }, Cmd.none) -- FIRE THE COMMAND
+          ({ model | activeCommand = Nothing, direction = Nothing, isCursorActive = False }, Ports.commandFired <| toString activeCommand.direction) -- FIRE THE COMMAND
     ChangeDirection direction ->
       let
         _ = log "yo" direction
