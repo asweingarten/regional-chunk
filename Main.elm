@@ -123,7 +123,7 @@ update msg model =
           case model.activeCommand of
             Nothing -> { direction = direction, progress = 0 }
             Just command ->
-              case command.direction == direction of
+              case equivalentDirection command.direction direction of
                 True -> command
                 False -> { direction = direction, progress = 0 }
       in
@@ -137,6 +137,14 @@ update msg model =
     ScreenSize sSize ->
       ({ model | screenSize = sSize }, Cmd.none)
 
+equivalentDirection : Direction -> Direction -> Bool
+equivalentDirection curDir newDir =
+  case curDir of
+    North -> newDir == curDir || newDir == Northeast || newDir == Northwest
+    South -> newDir == curDir || newDir == Southeast || newDir == Southwest
+    East  -> newDir == curDir || newDir == Northeast || newDir == Southeast
+    West  -> newDir == curDir || newDir == Northwest || newDir == Southwest
+    _     -> False
 
 -- SUBSCRIPTIONS
 subscriptions : Model -> Sub Msg
