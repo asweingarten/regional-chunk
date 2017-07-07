@@ -38,12 +38,11 @@ receiveMessage screenSize windowSize payload =
     Ok gp ->
       let
         _ = log "payload" payload
-        x = round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
-        y = round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
-
-        -- x = round gp.x--round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
-        -- yOffset = toFloat <| screenSize.height - windowSize.height
-        -- y = round (gp.y - yOffset)--round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
+        --x = round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
+        --y = round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
+        x = round gp.x--round (gp.x / 1.5)-- round ( (gp.x / (toFloat screenSize.width)) * toFloat windowSize.width )
+        yOffset = toFloat <| screenSize.height - windowSize.height
+        y = round (gp.y - yOffset)--round (gp.y / 1.6)-- round ( (gp.y / (toFloat screenSize.height)) * toFloat windowSize.height )
       in
       NewGazePoint (GazePoint gp.state gp.timestamp x y)
 
