@@ -9,20 +9,27 @@ eyeGazeOverlay.style['z-index'] = 9999999;
 
 document.body.appendChild(eyeGazeOverlay);
 
-const app = Elm.Main.embed(eyeGazeOverlay);
-app.ports.screenSize.send({width: screen.width, height: screen.height});
+const CommandPalette = Elm.Main.embed(eyeGazeOverlay);
+CommandPalette.ports.screenSize.send({width: screen.width, height: screen.height});
 
-app.ports.commandFired.subscribe(direction => {
+CommandPalette.ports.commandFired.subscribe(direction => {
   switch (direction) {
     case "North":
       // something
+      if (TreeNavigation) {
+        TreeNavigation.ports.receiveExternalCmd('Up');
+      }
       break;
     case "East":
-
+      if (TreeNavigation) {
+        TreeNavigation.ports.receiveExternalCmd('Next');
+      }
       break;
 
     case "South":
-
+      if (TreeNavigation) {
+        TreeNavigation.ports.receiveExternalCmd('Select');
+      }
       break;
 
     case "West":
