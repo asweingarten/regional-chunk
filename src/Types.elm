@@ -4,6 +4,12 @@ import Time exposing(Time)
 import Mouse exposing(Position)
 import Window exposing(Size)
 
+-- type alias CommandPalette =
+--   { cursorActivationZone: Square
+--   , isCursorActive: Bool
+--   , activeCommand: Maybe DwellCommand
+--   }
+
 type Direction
   = West
   | East
@@ -22,20 +28,12 @@ type alias DwellCommand =
 type Msg
   = CursorMoved Position
   | MouseClick Position
-  | ButtonEntered
-  | ButtonLeft
   | Dwell Direction Time
   | ChangeDirection Direction
   | NewGazePoint GazePoint
   | Send String
   | WindowResize Size
   | ScreenSize Size
-
-type alias DwellButton =
-  { text: String
-  , progress: Int
-  , active: Bool
-  }
 
 type alias Square =
   { x: Int

@@ -7,33 +7,32 @@ import Mouse exposing (Position)
 
 import Types exposing (..)
 
-dwellButton : DwellButton -> Html Msg
-dwellButton {text, progress} =
-  let
-    buttonStyle =
-      style
-        [ ("width", "120px")
-        , ("height", "120px")
-        , ("background-color", "rgba(25,25,25,0.1)")
-        ]
-    progressPx = (progress |> toString) ++ "%"
-    progressStyle =
-      style
-        [ ("width", progressPx )
-        , ("height", "100%")
-        , ("background-color", "rgba(25, 0, 25, 0.3)")
-        ]
-  in
-  div
-    [ buttonStyle
-    , onMouseEnter ButtonEntered
-    , onMouseLeave ButtonLeft
-    ]
-    [ div
-      [ progressStyle
-      ]
-      []
-    ]
+-- commandProgressIndicator : DwellButton -> Html Msg
+-- commandProgressIndicator {text, progress} =
+--   let
+--     -- buttonStyle =
+--     --   style
+--     --     [ ("width", "120px")
+--     --     , ("height", "120px")
+--     --     , ("background-color", "rgba(25,25,25,0.1)")
+--     --     ]
+--
+--     progressPx = (progress |> toString) ++ "%"
+--     progressStyle =
+--       style
+--         [ ("width", progressPx )
+--         , ("height", "100%")
+--         , ("background-color", "rgba(25, 0, 25, 0.3)")
+--         ]
+--   in
+--   div
+--     [ buttonStyle
+--     ]
+--     [ div
+--       [ progressStyle
+--       ]
+--       []
+--     ]
 
 gazeCursor : Position -> Html Msg
 gazeCursor point =

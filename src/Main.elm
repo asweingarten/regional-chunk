@@ -9,7 +9,7 @@ import Window exposing (resizes, Size)
 import Screen exposing (screenSize)
 import Task
 
-import Views exposing (dwellButton, displacement, gazeCursor)
+import Views exposing (displacement, gazeCursor)
 import CommandSquare exposing (commandSquare, dwellCommandSubscription)
 import Types exposing (..)
 import EyeTracker
@@ -29,6 +29,7 @@ main =
 -- MODEL
 type alias Model =
   { mousePosition: Position
+  -- , commandPalette: CommandPalette
   , cursorActivationZone: Square
   , isCursorActive: Bool
   , gazePosition: Position
@@ -94,14 +95,6 @@ update msg model =
         , isCursorActive = True
         }
       , Cmd.none)
-    ButtonEntered ->
-      let _ = log "button entered" 5
-      in
-      (model, Cmd.none)
-    ButtonLeft ->
-      let _ = log "button entered" 5
-      in
-      (model, Cmd.none)
     Dwell direction time ->
       let
         _ = log "time" time
