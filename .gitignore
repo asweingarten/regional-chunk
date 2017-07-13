@@ -1,3 +1,2 @@
 elm-stuff/
-build/main.js
-main.js
+build/*.js
