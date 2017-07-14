@@ -1,17 +1,14 @@
 module Main exposing (..)
 
-import Html exposing (..)
-import Html.Attributes exposing (style, class)
-import Mouse exposing (Position, moves, clicks)
-import Time exposing (Time)
-import Debug exposing (log)
+import Html
+import Mouse exposing (moves, clicks)
+import Time exposing (millisecond, every)
 import Window exposing (resizes, Size)
 import Screen exposing (screenSize)
 
 import Model exposing (Model)
 import Update
-import Views exposing (displacement, gazeCursor)
-import CommandSquare exposing (commandSquare, dwellCommandSubscription)
+import View
 import Types exposing (..)
 import EyeTracker
 
@@ -21,7 +18,7 @@ import EyeTracker
 main =
   Html.program
   { init = Model.init
-  , view = view
+  , view = View.view
   , update = Update.update
   , subscriptions = subscriptions
   }
@@ -38,38 +35,10 @@ subscriptions model =
     , dwellCommandSubscription model.commandPalette.activeCommand
     ]
 
--- VIEW
-
-view : Model -> Html Msg
-view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direction} =
-  let
-    x = toString mousePosition.x
-    y = toString mousePosition.y
-    wWidth = toString windowSize.width
-    wHeight = toString windowSize.height
-    sWidth = toString screenSize.width
-    sHeight = toString screenSize.height
-    -- progress =
-    --   case activeCommand of
-    --     Nothing -> toString 0
-    --     Just command -> toString command.progress
-    justDirection =
-      case direction of
-        Nothing -> ""
-        Just d -> toString d
-    myStyle =
-      style
-        [ ("margin", "0 auto")
-        , ("font-size", "48")
-        ]
-  in
-  div []
-    ([ text ("cursor pos: " ++ x ++ " :: " ++ y)
-    , text ("window size: " ++ wWidth ++ " :: " ++ wHeight)
-    , text ("screen sizeff: " ++ sWidth ++ " :: " ++ sHeight)
-    ]
-    ++ ([commandSquare commandPalette.dimensions commandPalette.isActive commandPalette.activeCommand])
-    -- ++ ([displacement mousePosition cursorActivationZone])
-    ++ ([gazeCursor gazePosition])
-    ++ ([div [class "div", myStyle] [text <| justDirection ++  " "]])-- ++ progress]])
-    )
+dwellCommandSubscription : Maybe DwellCommand -> Sub Msg
+dwellCommandSubscription dwellCmd =
+  case dwellCmd of
+    Just dwellCmd ->
+      every (200 * millisecond) (Dwell dwellCmd.direction)
+    Nothing ->
+      Sub.none

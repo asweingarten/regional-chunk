@@ -6,7 +6,8 @@
     "source-directories": [
         "./src",
         "./src/model",
-        "./src/update"
+        "./src/update",
+        "./src/view"
     ],
     "exposed-modules": [],
     "dependencies": {

@@ -1,22 +1,12 @@
-module CommandSquare exposing (..)
+module CommandPalette exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (style)
-import Time exposing (millisecond, every)
 
 import Types exposing (..)
 
-dwellCommandSubscription : Maybe DwellCommand -> Sub Msg
-dwellCommandSubscription dwellCmd =
-  case dwellCmd of
-    Just dwellCmd ->
-      every (200 * millisecond) (Dwell dwellCmd.direction)
-    Nothing ->
-      Sub.none
-
-
-commandSquare : Square -> Bool -> Maybe DwellCommand -> Html Msg
-commandSquare {x, y, sideLength} isActive mActiveCommand=
+view : Square -> Bool -> Maybe DwellCommand -> Html Msg
+view {x, y, sideLength} isActive mActiveCommand=
   let
     left = toPixels (x - sideLength)
     top = toPixels (y - sideLength)
