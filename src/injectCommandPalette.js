@@ -12,6 +12,7 @@ document.body.appendChild(eyeGazeOverlay);
 const CommandPalette = Elm.Main.embed(eyeGazeOverlay);
 CommandPalette.ports.screenSize.send({width: screen.width, height: screen.height});
 
+TreeNavigation = TreeNavigation || undefined;
 CommandPalette.ports.commandFired.subscribe(direction => {
   switch (direction) {
     case "North":
