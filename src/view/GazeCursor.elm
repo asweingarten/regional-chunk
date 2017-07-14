@@ -1,4 +1,4 @@
-module Views exposing (..)
+module GazeCursor exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (style)
@@ -34,8 +34,8 @@ import Types exposing (..)
 --       []
 --     ]
 
-gazeCursor : Position -> Html Msg
-gazeCursor point =
+view : Position -> Html Msg
+view point =
   let
     left = toPixels (point.x - 15)
     right = toPixels (point.y - 15)
@@ -56,13 +56,13 @@ gazeCursor point =
     , div [cursorStyle] []
     ]
 
-displacement : Position -> Square -> Html Msg
-displacement position square =
-  let
-    deltaX = toString (position.x - square.x)
-    deltaY = toString (position.y - square.y)
-  in
-  text (deltaX ++ " :: " ++ deltaY)
+-- displacement : Position -> Square -> Html Msg
+-- displacement position square =
+--   let
+--     deltaX = toString (position.x - square.x)
+--     deltaY = toString (position.y - square.y)
+--   in
+--   text (deltaX ++ " :: " ++ deltaY)
 
 toPixels : Int -> String
 toPixels int =

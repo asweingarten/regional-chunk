@@ -5,6 +5,7 @@ import Html.Attributes exposing (style, class)
 
 import Model exposing (Model)
 import CommandPalette
+import GazeCursor
 import Types exposing (..)
 
 view : Model -> Html Msg
@@ -37,7 +38,7 @@ view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direc
     ]
     ++ ([CommandPalette.view commandPalette.dimensions commandPalette.isActive commandPalette.activeCommand])
     -- ++ ([displacement mousePosition cursorActivationZone])
-    -- ++ ([gazeCursor gazePosition])
+    ++ ([GazeCursor.view gazePosition])
     ++ ([div [class "div", myStyle] [text <| justDirection ++  " " ++ progress]])
     )
 
