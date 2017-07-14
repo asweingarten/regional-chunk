@@ -38,7 +38,7 @@ view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direc
     ]
     ++ ([CommandPalette.view commandPalette.dimensions commandPalette.isActive commandPalette.activeCommand])
     -- ++ ([displacement mousePosition cursorActivationZone])
-    ++ ([GazeCursor.view gazePosition])
+    -- ++ ([GazeCursor.view gazePosition])
     ++ ([div [class "div", myStyle] [text <| justDirection ++  " " ++ progress]])
     )
 

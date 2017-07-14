@@ -64,7 +64,7 @@ view {x, y, sideLength} isActive mActiveCommand=
   in
   div []
     [ div [myStyle] []
-    , progressDot
+    -- , progressDot
     , progressBar
     , div [westStyle] [text "West"]
     , div [northStyle] [text "North"]
@@ -124,7 +124,7 @@ commandProgressBar {direction, progress} =
     height = progressBarHeight direction progress
     progressBarStyle =
       style
-        [ ("background-color", "rgba(25,25,25, 1)")
+        [ ("background-color", "rgba(25,25,25, 0.2)")
         , ("position", "absolute")
         , anchor
         , width
@@ -147,7 +147,7 @@ progressBarAnchor direction =
 
 progressBarWidth : Direction -> Int -> (String, String)
 progressBarWidth direction progress =
-  let progressPercent = toString (progress * 10)  ++ "%"
+  let progressPercent = toString ((progress+1) * 10)  ++ "%"
   in
   case direction of
     Northwest -> ("width", "100%")
@@ -161,7 +161,7 @@ progressBarWidth direction progress =
 
 progressBarHeight : Direction -> Int -> (String, String)
 progressBarHeight direction progress =
-  let progressPercent = toString (progress * 10)  ++ "%"
+  let progressPercent = toString ((progress+1) * 10)  ++ "%"
   in
   case direction of
     Northwest -> ("height", progressPercent)
