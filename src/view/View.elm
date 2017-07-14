@@ -10,7 +10,7 @@ import Configuration
 import Types exposing (..)
 
 view : Model -> Html Msg
-view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direction, showConfiguration} =
+view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direction, showConfiguration, showGazeCursor} =
   let
     x = toString mousePosition.x
     y = toString mousePosition.y
@@ -30,6 +30,10 @@ view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direc
       case showConfiguration of
         True -> Configuration.view commandPalette
         False -> div [] []
+    gazeCursor =
+      case showGazeCursor of
+        True -> GazeCursor.view gazePosition
+        False -> div [] []
     myStyle =
       style
         [ ("margin", "0 auto")
@@ -43,7 +47,7 @@ view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direc
     ]
     ++ ([CommandPalette.view commandPalette.dimensions commandPalette.isActive commandPalette.activeCommand])
     -- ++ ([displacement mousePosition cursorActivationZone])
-    -- ++ ([GazeCursor.view gazePosition])
+    ++ ([gazeCursor])
     ++ ([configuration])
     ++ ([div [class "div", myStyle] [text <| justDirection ++  " " ++ progress]])
     )

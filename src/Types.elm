@@ -30,6 +30,7 @@ type Msg
   | WindowResize Size
   | ScreenSize Size
   | SetActivationTime String
+  | ToggleGazeCursor
   | KeyDown Keyboard.KeyCode
 
 type alias Square =

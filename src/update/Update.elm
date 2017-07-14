@@ -19,7 +19,7 @@ update msg model =
         c = model.commandPalette
         commandPalette =
            { c
-           | dimensions = {x = position.x, y = position.y, sideLength = 100}
+           | dimensions = {x = position.x, y = position.y, sideLength = 150}
            , isActive = True
            }
       in
@@ -81,6 +81,8 @@ update msg model =
       , Cmd.none)
     KeyDown keyCode ->
       OnKeyDown.update model keyCode
+    ToggleGazeCursor ->
+      ({ model | showGazeCursor = not model.showGazeCursor }, Cmd.none)
 
 
 equivalentDirection : Direction -> Direction -> Bool

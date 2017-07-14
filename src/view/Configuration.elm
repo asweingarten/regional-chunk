@@ -1,8 +1,8 @@
 module Configuration exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (style, placeholder)
-import Html.Events exposing (onInput)
+import Html.Attributes exposing (style, placeholder, type_)
+import Html.Events exposing (onInput, onClick)
 
 import Model exposing (CommandPalette)
 import Types exposing (..)
@@ -29,4 +29,8 @@ view commandPalette =
   in
   div [configurationStyle]
     [ input [ placeholder activationTime, onInput SetActivationTime, inputStyle ] []
+    , label [ style [("padding", "20px")] ]
+      [ input [ type_ "checkbox", onClick ToggleGazeCursor ] []
+      , text "Gaze Cursor"
+      ]
     ]
