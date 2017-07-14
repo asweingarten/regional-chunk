@@ -6,7 +6,7 @@ import Time exposing (millisecond, every)
 import Window exposing (resizes, Size)
 import Screen exposing (screenSize)
 
-import Model exposing (Model)
+import Model exposing (Model, CommandPalette)
 import Update
 import View
 import Types exposing (..)
@@ -32,13 +32,17 @@ subscriptions model =
     , EyeTracker.subscription model.screenSize model.windowSize
     , resizes WindowResize
     , screenSize ScreenSize
-    , dwellCommandSubscription model.commandPalette.activeCommand
+    , dwellCommandSubscription model.commandPalette
     ]
 
-dwellCommandSubscription : Maybe DwellCommand -> Sub Msg
-dwellCommandSubscription dwellCmd =
+dwellCommandSubscription : CommandPalette -> Sub Msg
+dwellCommandSubscription commandPalette =
+  let
+    dwellCmd = commandPalette.activeCommand
+    activationTimeInMillis = commandPalette.activationTimeInMillis / 10
+  in
   case dwellCmd of
     Just dwellCmd ->
-      every (200 * millisecond) (Dwell dwellCmd.direction)
+      every (activationTimeInMillis * millisecond) (Dwell dwellCmd.direction)
     Nothing ->
       Sub.none
