@@ -36,7 +36,7 @@ view {x, y, sideLength} isActive mActiveCommand=
     westStyle =
       style
         [ ("position", "fixed")
-        , ("left", toPixels (x - sideLength - 120))
+        , ("left", toPixels (x - sideLength - 170))
         , ("top", toPixels (y - 12))
         , ("font-size", toPixels 48 )
         ]
@@ -66,10 +66,10 @@ view {x, y, sideLength} isActive mActiveCommand=
     [ div [myStyle] []
     -- , progressDot
     , progressBar
-    , div [westStyle] [text "West"]
-    , div [northStyle] [text "North"]
-    , div [eastStyle] [text "East"]
-    , div [southStyle] [text "South"]
+    , div [westStyle] [text "Previous"]
+    , div [northStyle] [text "Up"]
+    , div [eastStyle] [text "Next"]
+    , div [southStyle] [text "Select"]
     ]
 
 commandProgressDot : DwellCommand -> Int -> Int -> Int -> Html Msg
