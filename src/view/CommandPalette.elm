@@ -13,7 +13,7 @@ view {x, y, sideLength} isActive mActiveCommand=
     len = toPixels (sideLength * 2)
     color = case isActive of
       True ->
-        "rgba(25,25,75,0.8)"
+        "rgba(25,25,75,0.5)"
       False ->
         "rgba(25,25,75,0.2)"
     progressDot =
@@ -24,6 +24,14 @@ view {x, y, sideLength} isActive mActiveCommand=
       case mActiveCommand of
         Nothing -> div [] []
         Just command -> commandProgressBar command
+    fullscreenStyle =
+      style
+        [ ("position", "absolute")
+        , ("width", "100%")
+        , ("height", "100%")
+        , ("left", "0")
+        , ("top", "0")
+        ]
     myStyle =
       style
         [ ("position", "fixed")

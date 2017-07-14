@@ -34,7 +34,9 @@ CommandPalette.ports.commandFired.subscribe(direction => {
       break;
 
     case "West":
-
+      if (TreeNavigation) {
+        TreeNavigation.ports.receiveExternalCmd.send('Previous');
+      }
       break;
   }
 })
