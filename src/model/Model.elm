@@ -20,6 +20,7 @@ type alias Model =
   , windowSize : Size
   , screenSize : Size
   , direction : Maybe Direction
+  , showConfiguration : Bool
   }
 
 init : (Model, Cmd Msg)
@@ -31,4 +32,5 @@ init =
     (Size 0 0)
     (Size 0 0)
     Nothing
+    False
   , Task.perform WindowResize Window.size)

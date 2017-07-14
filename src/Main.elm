@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Html
 import Mouse exposing (moves, clicks)
+import Keyboard
 import Time exposing (millisecond, every)
 import Window exposing (resizes, Size)
 import Screen exposing (screenSize)
@@ -33,6 +34,7 @@ subscriptions model =
     , resizes WindowResize
     , screenSize ScreenSize
     , dwellCommandSubscription model.commandPalette
+    , Keyboard.downs KeyDown
     ]
 
 dwellCommandSubscription : CommandPalette -> Sub Msg

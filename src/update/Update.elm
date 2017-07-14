@@ -7,6 +7,7 @@ import Model exposing (Model)
 import Types exposing (..)
 import EyeTracker
 import Ports
+import OnKeyDown
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -69,6 +70,18 @@ update msg model =
       ({ model | windowSize = wSize }, Cmd.none)
     ScreenSize sSize ->
       ({ model | screenSize = sSize }, Cmd.none)
+    SetActivationTime newTime ->
+      let
+        commandPalette = model.commandPalette
+        newTimeFloat = case String.toFloat newTime of
+          Ok time -> time
+          Err _ -> commandPalette.activationTimeInMillis
+      in
+      ({ model | commandPalette = { commandPalette | activationTimeInMillis = newTimeFloat } }
+      , Cmd.none)
+    KeyDown keyCode ->
+      OnKeyDown.update model keyCode
+
 
 equivalentDirection : Direction -> Direction -> Bool
 equivalentDirection curDir newDir =

@@ -3,12 +3,7 @@ module Types exposing (..)
 import Time exposing(Time)
 import Mouse exposing(Position)
 import Window exposing(Size)
-
--- type alias CommandPalette =
---   { cursorActivationZone: Square
---   , isCursorActive: Bool
---   , activeCommand: Maybe DwellCommand
---   }
+import Keyboard
 
 type Direction
   = West
@@ -34,6 +29,8 @@ type Msg
   | Send String
   | WindowResize Size
   | ScreenSize Size
+  | SetActivationTime String
+  | KeyDown Keyboard.KeyCode
 
 type alias Square =
   { x: Int
