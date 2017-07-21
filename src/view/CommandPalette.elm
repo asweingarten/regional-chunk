@@ -142,7 +142,7 @@ commandProgressBar {direction, progress} =
     progressBarStyle =
       style
         [ ("background-color", "rgba(25,25,25, 0.2)")
-        , ("position", "absolute")
+        , ("position", "fixed")
         , anchor
         , width
         , height
