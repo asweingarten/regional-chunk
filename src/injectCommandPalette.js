@@ -12,30 +12,31 @@ document.body.appendChild(eyeGazeOverlay);
 const CommandPalette = Elm.Main.embed(eyeGazeOverlay);
 CommandPalette.ports.screenSize.send({width: screen.width, height: screen.height});
 
-var TreeNavigation = TreeNavigation || undefined;
+
+var tNav = TreeNavigation || undefined;
 CommandPalette.ports.commandFired.subscribe(direction => {
   switch (direction) {
     case "North":
       // something
-      if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd.send('Up');
+      if (tNav) {
+        tNav.ports.receiveExternalCmd.send('Up');
       }
       break;
     case "East":
-      if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd.send('Next');
+      if (tNav) {
+        tNav.ports.receiveExternalCmd.send('Next');
       }
       break;
 
     case "South":
-      if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd.send('Select');
+      if (tNav) {
+        tNav.ports.receiveExternalCmd.send('Select');
       }
       break;
 
     case "West":
-      if (TreeNavigation) {
-        TreeNavigation.ports.receiveExternalCmd.send('Previous');
+      if (tNav) {
+        tNav.ports.receiveExternalCmd.send('Previous');
       }
       break;
   }
