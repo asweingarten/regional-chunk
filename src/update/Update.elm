@@ -8,6 +8,8 @@ import Types exposing (..)
 import EyeTracker
 import Ports
 import OnKeyDown
+import ChangeDirection
+import Dwell
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -27,41 +29,12 @@ update msg model =
         | commandPalette = commandPalette
         }
       , Cmd.none)
-    Dwell direction time ->
-      let
-        c = model.commandPalette
-        _ = log "time" time
-        activeCommand =
-          case model.commandPalette.activeCommand of
-            Nothing ->
-              { direction = direction, progress = 1 }
-            Just command ->
-              { command | progress = (command.progress + 1) % 10 }
+    Dwell command direction time ->
+      let (updatedModel, cmd) = Dwell.update model command direction time
       in
-      case activeCommand.progress == 0 of
-        False ->
-          let commandPalette = { c | activeCommand = Just activeCommand }
-          in
-          ({ model | commandPalette = commandPalette }, Cmd.none)
-        True ->
-          let commandPalette = { c | activeCommand = Nothing, isActive = False }
-          in
-          ( { model | commandPalette = commandPalette }
-          , Ports.commandFired <| toString activeCommand.direction) -- FIRE THE COMMAND
+      (updatedModel, cmd)
     ChangeDirection direction ->
-      let
-        _ = log "yo" direction
-        activeCommand =
-          case model.commandPalette.activeCommand of
-            Nothing -> { direction = direction, progress = 0 }
-            Just command ->
-              case equivalentDirection command.direction direction of
-                True -> command
-                False -> { direction = direction, progress = 0 }
-        cp = model.commandPalette
-        commandPalette = { cp | activeCommand = Just activeCommand }
-      in
-        ({model | direction = Just direction, commandPalette = commandPalette }, Cmd.none)
+      ChangeDirection.update model direction
     NewGazePoint point ->
       onCursorMoved (Position point.x point.y) { model | gazePosition = (Position point.x point.y) }
     Send msg ->
@@ -84,15 +57,6 @@ update msg model =
     ToggleGazeCursor ->
       ({ model | showGazeCursor = not model.showGazeCursor }, Cmd.none)
 
-
-equivalentDirection : Direction -> Direction -> Bool
-equivalentDirection curDir newDir =
-  case curDir of
-    North -> newDir == curDir || newDir == Northeast || newDir == Northwest
-    South -> newDir == curDir || newDir == Southeast || newDir == Southwest
-    East  -> newDir == curDir || newDir == Northeast || newDir == Southeast
-    West  -> newDir == curDir || newDir == Northwest || newDir == Southwest
-    _     -> False
 
 onCursorMoved : Position -> Model -> (Model, Cmd Msg)
 onCursorMoved newPosition model =

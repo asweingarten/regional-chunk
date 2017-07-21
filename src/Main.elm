@@ -40,11 +40,14 @@ subscriptions model =
 dwellCommandSubscription : CommandPalette -> Sub Msg
 dwellCommandSubscription commandPalette =
   let
-    dwellCmd = commandPalette.activeCommand
+    activeCommand = commandPalette.activeCommand
+    candidateCommand = commandPalette.candidateCommand
     activationTimeInMillis = commandPalette.activationTimeInMillis / 10
   in
-  case dwellCmd of
-    Just dwellCmd ->
-      every (activationTimeInMillis * millisecond) (Dwell dwellCmd.direction)
-    Nothing ->
+  case (activeCommand, candidateCommand) of
+    (Just activeCmd, Just candidateCmd) ->
+      every (activationTimeInMillis * millisecond) (Dwell candidateCmd candidateCmd.direction)
+    (Just activeCmd, Nothing) ->
+      every (activationTimeInMillis * millisecond) (Dwell activeCmd activeCmd.direction)
+    (Nothing, _) ->
       Sub.none

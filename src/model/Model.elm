@@ -10,6 +10,7 @@ type alias CommandPalette =
   { dimensions: Square
   , isActive: Bool
   , activeCommand: Maybe DwellCommand
+  , candidateCommand: Maybe DwellCommand
   , activationTimeInMillis: Float
   }
 
@@ -28,7 +29,7 @@ init : (Model, Cmd Msg)
 init =
   (Model
     { x = -1, y = -1 }
-    (CommandPalette { x = 0, y = 0, sideLength = 0} False Nothing 3000)
+    (CommandPalette { x = 0, y = 0, sideLength = 0} False Nothing Nothing 3000)
     {x = 0, y = 0}
     (Size 0 0)
     (Size 0 0)

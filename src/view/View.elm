@@ -45,7 +45,7 @@ view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direc
     , text ("window size: " ++ wWidth ++ " :: " ++ wHeight)
     , text ("screen sizeff: " ++ sWidth ++ " :: " ++ sHeight)
     ]
-    ++ ([CommandPalette.view commandPalette.dimensions commandPalette.isActive commandPalette.activeCommand])
+    ++ ([CommandPalette.view commandPalette])
     -- ++ ([displacement mousePosition cursorActivationZone])
     ++ ([gazeCursor])
     ++ ([configuration])

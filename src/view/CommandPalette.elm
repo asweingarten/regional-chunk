@@ -3,11 +3,15 @@ module CommandPalette exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (style)
 
+import Model exposing (CommandPalette)
 import Types exposing (..)
 
-view : Square -> Bool -> Maybe DwellCommand -> Html Msg
-view {x, y, sideLength} isActive mActiveCommand=
+view : CommandPalette -> Html Msg
+view {dimensions, isActive, activeCommand, candidateCommand, activationTimeInMillis} =
   let
+    x = dimensions.x
+    y = dimensions.y
+    sideLength = dimensions.sideLength
     left = toPixels (x - sideLength)
     top = toPixels (y - sideLength)
     len = toPixels (sideLength * 2)
@@ -17,11 +21,15 @@ view {x, y, sideLength} isActive mActiveCommand=
       False ->
         "rgba(25,25,75,0.2)"
     progressDot =
-      case mActiveCommand of
+      case activeCommand of
         Nothing -> div [] []
         Just command -> commandProgressDot command x y sideLength
     progressBar =
-      case mActiveCommand of
+      case activeCommand of
+        Nothing -> div [] []
+        Just command -> commandProgressBar command
+    candidateBar =
+      case candidateCommand of
         Nothing -> div [] []
         Just command -> commandProgressBar command
     fullscreenStyle =
@@ -74,6 +82,7 @@ view {x, y, sideLength} isActive mActiveCommand=
     [ div [myStyle] []
     -- , progressDot
     , progressBar
+    , candidateBar
     , div [westStyle] [text "Previous"]
     , div [northStyle] [text "Up"]
     , div [eastStyle] [text "Next"]

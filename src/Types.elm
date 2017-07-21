@@ -18,12 +18,13 @@ type Direction
 type alias DwellCommand =
   { direction : Direction
   , progress  : Int
+  , threshold : Int
   }
 
 type Msg
   = CursorMoved Position
   | MouseClick Position
-  | Dwell Direction Time
+  | Dwell DwellCommand Direction Time
   | ChangeDirection Direction
   | NewGazePoint GazePoint
   | Send String
