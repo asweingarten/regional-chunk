@@ -24,11 +24,13 @@ update msg model =
            | dimensions = {x = position.x, y = position.y, sideLength = 115}
            , isActive = True
            }
+        updatedModel = case model.showConfiguration of
+          True -> model
+          False -> { model | commandPalette = commandPalette }
       in
-      ( { model
-        | commandPalette = commandPalette
-        }
-      , Cmd.none)
+      ( updatedModel
+      , Cmd.none
+      )
     Dwell command direction time ->
       let (updatedModel, cmd) = Dwell.update model command direction time
       in

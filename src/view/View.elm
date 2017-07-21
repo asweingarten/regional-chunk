@@ -10,29 +10,30 @@ import Configuration
 import Types exposing (..)
 
 view : Model -> Html Msg
-view {mousePosition, commandPalette, gazePosition, windowSize, screenSize, direction, showConfiguration, showGazeCursor} =
+view model =
   let
-    x = toString mousePosition.x
-    y = toString mousePosition.y
-    wWidth = toString windowSize.width
-    wHeight = toString windowSize.height
-    sWidth = toString screenSize.width
-    sHeight = toString screenSize.height
+    commandPalette = model.commandPalette
+    x = toString model.mousePosition.x
+    y = toString model.mousePosition.y
+    wWidth = toString model.windowSize.width
+    wHeight = toString model.windowSize.height
+    sWidth = toString model.screenSize.width
+    sHeight = toString model.screenSize.height
     progress =
       case commandPalette.activeCommand of
         Nothing -> toString 0
         Just command -> toString command.progress
     justDirection =
-      case direction of
+      case model.direction of
         Nothing -> ""
         Just d -> toString d
     configuration =
-      case showConfiguration of
-        True -> Configuration.view commandPalette
+      case model.showConfiguration of
+        True -> Configuration.view model
         False -> div [] []
     gazeCursor =
-      case showGazeCursor of
-        True -> GazeCursor.view gazePosition
+      case model.showGazeCursor of
+        True -> GazeCursor.view model.gazePosition
         False -> div [] []
     myStyle =
       style

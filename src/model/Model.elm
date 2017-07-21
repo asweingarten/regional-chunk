@@ -35,5 +35,5 @@ init =
     (Size 0 0)
     Nothing
     False
-    True
+    False
   , Task.perform WindowResize Window.size)

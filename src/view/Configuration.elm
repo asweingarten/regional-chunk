@@ -1,15 +1,16 @@
 module Configuration exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (style, placeholder, type_)
+import Html.Attributes exposing (style, placeholder, type_, checked)
 import Html.Events exposing (onInput, onClick)
 
-import Model exposing (CommandPalette)
+import Model exposing (Model)
 import Types exposing (..)
 
-view : CommandPalette -> Html Msg
-view commandPalette =
+view : Model -> Html Msg
+view model =
   let
+    commandPalette = model.commandPalette
     activationTime = (toString commandPalette.activationTimeInMillis) ++ "ms"
     configurationStyle =
       style
@@ -30,7 +31,7 @@ view commandPalette =
   div [configurationStyle]
     [ input [ placeholder activationTime, onInput SetActivationTime, inputStyle ] []
     , label [ style [("padding", "20px")] ]
-      [ input [ type_ "checkbox", onClick ToggleGazeCursor ] []
+      [ input [ type_ "checkbox", onClick ToggleGazeCursor, checked model.showGazeCursor ] []
       , text "Gaze Cursor"
       ]
     ]
