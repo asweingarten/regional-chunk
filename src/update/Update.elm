@@ -21,7 +21,7 @@ update msg model =
         c = model.commandPalette
         commandPalette =
            { c
-           | dimensions = {x = position.x, y = position.y, sideLength = 150}
+           | dimensions = {x = position.x, y = position.y, sideLength = 115}
            , isActive = True
            }
       in
