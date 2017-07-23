@@ -68,33 +68,44 @@ onCursorMoved newPosition model =
     deltaX = newPosition.x - cp.dimensions.x
     deltaY = newPosition.y - cp.dimensions.y
     (isActive, left, right, up, down) =
+      -- calculated incorrectly. dominant direction should take precendence
       ( cp.isActive
       , deltaX <= -threshold
       , deltaX >= threshold
       , deltaY <= -threshold
       , deltaY >= threshold
       )
+    (isNewlyActive, currentDirection) =
+      case (isActive, left, right, up, down) of
+        (True, True, False, False, False) -> (False, Just West)
+        (True, True, False, True, False) -> (False, Just Northwest)
+        (True, True, False, False, True) -> (False, Just Southwest)
+        (True, False, True, False, False) -> (False, Just East)
+        (True, False, True, True, False) -> (False, Just Northeast)
+        (True, False, True, False, True) -> (False, Just Southeast)
+        (True, False, False, True, False) -> (False, Just North)
+        (True, False, False, False, True) -> (False, Just South)
+        (False, False, False, False, False) -> (True, Nothing)
+        (_, _, _, _, _) -> (False, Nothing)
   in
-  case (isActive, left, right, up, down) of
-    (True, True, False, False, False) ->
-      update (ChangeDirection West) model
-    (True, True, False, True, False) ->
-      update (ChangeDirection Northwest) model
-    (True, True, False, False, True) ->
-      update (ChangeDirection Southwest) model
-    (True, False, True, False, False) ->
-      update (ChangeDirection East) model
-    (True, False, True, True, False) ->
-      update (ChangeDirection Northeast) model
-    (True, False, True, False, True) ->
-      update (ChangeDirection Southeast) model
-    (True, False, False, True, False) ->
-      update (ChangeDirection North) model
-    (True, False, False, False, True) ->
-      update (ChangeDirection South) model
-    (False, False, False, False, False) ->
+  case (isNewlyActive, model.direction, currentDirection) of
+    (True, _, _) ->
       let commandPalette = { cp | isActive = True}
       in
       ({model | commandPalette = commandPalette }, Cmd.none)
-    (_,_, _, _, _) ->
-      (model, Cmd.none)
+    (False, Nothing, Just curDir) -> update (ChangeDirection curDir) model
+    (False, _, Nothing) -> (model, Cmd.none)
+    (False, Just prevDir, Just curDir) ->
+      case prevDir |> isEquivalentTo curDir of
+        True -> (model, Cmd.none)
+        False -> update (ChangeDirection curDir) model
+
+
+isEquivalentTo : Direction -> Direction -> Bool
+isEquivalentTo curDir newDir =
+  case curDir of
+    North -> newDir == curDir || newDir == Northeast || newDir == Northwest
+    South -> newDir == curDir || newDir == Southeast || newDir == Southwest
+    East  -> newDir == curDir || newDir == Northeast || newDir == Southeast
+    West  -> newDir == curDir || newDir == Northwest || newDir == Southwest
+    _     -> False
