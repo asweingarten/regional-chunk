@@ -78,11 +78,35 @@ onCursorMoved newPosition model =
     (isNewlyActive, currentDirection) =
       case (isActive, left, right, up, down) of
         (True, True, False, False, False) -> (False, Just West)
-        (True, True, False, True, False) -> (False, Just Northwest)
-        (True, True, False, False, True) -> (False, Just Southwest)
+        (True, True, False, True, False) ->
+          case (abs deltaX) == (abs deltaY) of
+            True -> (False, Nothing) -- Don't report Northwest direction
+            False ->
+              case (abs deltaX) > (abs deltaY) of
+                True -> (False, Just West)
+                False -> (False, Just North)
+        (True, True, False, False, True) ->
+          case (abs deltaX) == (abs deltaY) of
+            True -> (False, Nothing) -- Don't report Southwest direction
+            False ->
+              case (abs deltaX) > (abs deltaY) of
+                True -> (False, Just West)
+                False -> (False, Just South)
         (True, False, True, False, False) -> (False, Just East)
-        (True, False, True, True, False) -> (False, Just Northeast)
-        (True, False, True, False, True) -> (False, Just Southeast)
+        (True, False, True, True, False) ->
+          case (abs deltaX) == (abs deltaY) of
+            True -> (False, Nothing) -- Don't report Northeast direction
+            False ->
+              case (abs deltaX) > (abs deltaY) of
+                True -> (False, Just East)
+                False -> (False, Just North)
+        (True, False, True, False, True) ->
+          case (abs deltaX) == (abs deltaY) of
+            True -> (False, Nothing) -- Don't report Southeast direction
+            False ->
+              case (abs deltaX) > (abs deltaY) of
+                True -> (False, Just East)
+                False -> (False, Just South)
         (True, False, False, True, False) -> (False, Just North)
         (True, False, False, False, True) -> (False, Just South)
         (False, False, False, False, False) -> (True, Nothing)
