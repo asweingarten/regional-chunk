@@ -15,10 +15,13 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     CursorMoved newPosition ->
+      let _ = log "MAUS MOVE" newPosition
+      in
       onCursorMoved newPosition model
     MouseClick position ->
       let
         c = model.commandPalette
+        _ = log "MAUS CLICK" position
         commandPalette =
            { c
            | dimensions = {x = position.x, y = position.y, sideLength = 115}

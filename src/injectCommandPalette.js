@@ -12,6 +12,9 @@ document.body.appendChild(eyeGazeOverlay);
 const CommandPalette = Elm.Main.embed(eyeGazeOverlay);
 CommandPalette.ports.screenSize.send({width: screen.width, height: screen.height});
 
+window.onclick = (event) => CommandPalette.ports.clicks.send({ x: ~~event.clientX, y: ~~event.clientY});
+window.onmousemove = (event) => CommandPalette.ports.moves.send({ x: ~~event.clientX, y: ~~event.clientY});
+
 
 var tNav = TreeNavigation || undefined;
 CommandPalette.ports.commandFired.subscribe(direction => {

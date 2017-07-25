@@ -5,13 +5,13 @@ import Mouse exposing (moves, clicks)
 import Keyboard
 import Time exposing (millisecond, every)
 import Window exposing (resizes, Size)
-import Screen exposing (screenSize)
 
 import Model exposing (Model, CommandPalette)
 import Update
 import View
 import Types exposing (..)
 import EyeTracker
+import Ports
 
 -- TODO
 -- Change Square type to something that better described cursor activation zone
@@ -28,11 +28,11 @@ main =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
-    [ moves CursorMoved
-    , clicks MouseClick
+    [ Ports.moves CursorMoved
+    , Ports.clicks MouseClick
     , EyeTracker.subscription model.screenSize model.windowSize
     , resizes WindowResize
-    , screenSize ScreenSize
+    , Ports.screenSize ScreenSize
     , dwellCommandSubscription model.commandPalette
     , Keyboard.downs KeyDown
     ]
