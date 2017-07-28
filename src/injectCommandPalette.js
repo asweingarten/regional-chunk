@@ -27,7 +27,7 @@ CommandPalette.ports.commandFired.subscribe(direction => {
       break;
     case "East":
       if (tNav) {
-        tNav.ports.receiveExternalCmd.send('Next');
+        tNav.ports.resumeScanning.send('x');
       }
       break;
 
@@ -44,3 +44,9 @@ CommandPalette.ports.commandFired.subscribe(direction => {
       break;
   }
 })
+
+CommandPalette.ports.activated.subscribe(x => {
+  if (tNav) {
+    tNav.ports.pauseScanning.send('x');
+  }
+});

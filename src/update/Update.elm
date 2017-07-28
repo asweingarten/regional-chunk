@@ -119,7 +119,7 @@ onCursorMoved newPosition model =
     (True, _, _) ->
       let commandPalette = { cp | isActive = True}
       in
-      ({model | commandPalette = commandPalette }, Cmd.none)
+      ({model | commandPalette = commandPalette }, Ports.activated "foo")
     (False, Nothing, Just curDir) -> update (ChangeDirection curDir) model
     (False, _, Nothing) -> (model, Cmd.none)
     (False, Just prevDir, Just curDir) ->
