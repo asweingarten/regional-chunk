@@ -1,6 +1,7 @@
 module Dwell exposing (update)
 
 import Time exposing (Time)
+import Debug exposing (log)
 
 import Model exposing (Model)
 import Types exposing (..)
@@ -18,15 +19,21 @@ update model command direction time =
   in
     case (c.activeCommand, c.candidateCommand, thresholdReached) of
       (Just activeCommand, Nothing, True) ->
-        let cmdP = { c | activeCommand = Nothing, isActive = False }
+        let
+          cmdP = { c | activeCommand = Nothing, isActive = False }
+          _ = log "command about to be fired" activeCommand
         in
-        ({ model | commandPalette = cmdP }, Ports.commandFired <| toString activeCommand.direction)
+        ({ model | commandPalette = cmdP, direction = Nothing }
+        , Ports.commandFired <| toString activeCommand.direction)
       (Just activeCommand, Nothing, False) ->
-        let cmdP = { c | activeCommand = Just updatedCommand }
+        let
+          cmdP = { c | activeCommand = Just updatedCommand }
         in
         ({ model | commandPalette = cmdP }, Cmd.none)
       (Just activeCommand, Just candidateCommand, True) ->
-        let updatedActiveCommand = activeCommand.direction == updatedCommand.direction
+        let
+          updatedActiveCommand = activeCommand.direction == updatedCommand.direction
+          _ = log "active, cand, and thresholdReached" activeCommand.progress
         in
         case updatedActiveCommand of
           True ->
