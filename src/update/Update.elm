@@ -17,18 +17,18 @@ update msg model =
     CursorMoved newPosition ->
       onCursorMoved newPosition model
     MouseClick position ->
-      let
-        c = model.commandPalette
-        commandPalette =
-           { c
-           | dimensions = {x = position.x, y = position.y, sideLength = 115}
-           , isActive = True
-           }
-        updatedModel = case model.showConfiguration of
-          True -> model
-          False -> { model | commandPalette = commandPalette }
-      in
-      ( updatedModel
+      -- let
+      --   c = model.commandPalette
+      --   commandPalette =
+      --      { c
+      --      | dimensions = {x = position.x, y = position.y, sideLength = 115}
+      --      , isActive = True
+      --      }
+      --   updatedModel = case model.showConfiguration of
+      --     True -> model
+      --     False -> { model | commandPalette = commandPalette }
+      -- in
+      ( model
       , Cmd.none
       )
     Dwell command direction time ->
