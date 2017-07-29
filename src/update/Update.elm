@@ -42,7 +42,22 @@ update msg model =
     Send msg ->
       (model, EyeTracker.send msg)
     WindowResize wSize ->
-      ({ model | windowSize = wSize }, Cmd.none)
+      -- update command palette size and position
+      let
+        cmdPX = (4 * wSize.width |> toFloat) / 5 |> round
+        cmdPY = (3 * wSize.height |> toFloat) / 5 |> round
+        cmdPSideLength = (wSize.height |> toFloat) / 5 |> round
+        newCommandPaletteDimensions = (Square cmdPX cmdPY cmdPSideLength)
+        c = model.commandPalette
+        newC = { c | dimensions = newCommandPaletteDimensions }
+      in
+      (
+        { model
+        | windowSize = wSize
+        , commandPalette = newC
+        }
+      , Cmd.none
+      )
     ScreenSize sSize ->
       ({ model | screenSize = sSize }, Cmd.none)
     SetActivationTime newTime ->
