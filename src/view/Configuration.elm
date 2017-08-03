@@ -30,8 +30,4 @@ view model =
   in
   div [configurationStyle]
     [ input [ placeholder activationTime, onInput SetActivationTime, inputStyle ] []
-    , label [ style [("padding", "20px")] ]
-      [ input [ type_ "checkbox", onClick ToggleGazeCursor, checked model.showGazeCursor ] []
-      , text "Gaze Cursor"
-      ]
     ]

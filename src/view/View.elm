@@ -5,7 +5,6 @@ import Html.Attributes exposing (style, class)
 
 import Model exposing (Model)
 import CommandPalette
-import GazeCursor
 import Configuration
 import Types exposing (..)
 
@@ -31,10 +30,6 @@ view model =
       case model.showConfiguration of
         True -> Configuration.view model
         False -> div [] []
-    gazeCursor =
-      case model.showGazeCursor of
-        True -> GazeCursor.view model.gazePosition
-        False -> div [] []
     myStyle =
       style
         [ ("margin", "0 auto")
@@ -48,7 +43,6 @@ view model =
     ]
     ++ ([CommandPalette.view commandPalette])
     -- ++ ([displacement mousePosition cursorActivationZone])
-    ++ ([gazeCursor])
     ++ ([configuration])
     ++ ([div [class "div", myStyle] [text <| justDirection ++  " " ++ progress]])
     )

@@ -5,7 +5,6 @@ import Debug exposing (log)
 
 import Model exposing (Model)
 import Types exposing (..)
-import EyeTracker
 import Ports
 import OnKeyDown
 import ChangeDirection
@@ -37,10 +36,6 @@ update msg model =
       (updatedModel, cmd)
     ChangeDirection direction ->
       ChangeDirection.update model direction
-    NewGazePoint point ->
-      onCursorMoved (Position point.x point.y) { model | gazePosition = (Position point.x point.y) }
-    Send msg ->
-      (model, EyeTracker.send msg)
     WindowResize wSize ->
       -- update command palette size and position
       let
@@ -71,8 +66,6 @@ update msg model =
       , Cmd.none)
     KeyDown keyCode ->
       OnKeyDown.update model keyCode
-    ToggleGazeCursor ->
-      ({ model | showGazeCursor = not model.showGazeCursor }, Cmd.none)
 
 
 onCursorMoved : Position -> Model -> (Model, Cmd Msg)

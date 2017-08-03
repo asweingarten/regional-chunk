@@ -10,7 +10,6 @@ import Model exposing (Model, CommandPalette)
 import Update
 import View
 import Types exposing (..)
-import EyeTracker
 import Ports
 
 -- TODO
@@ -30,7 +29,6 @@ subscriptions model =
   Sub.batch
     [ Ports.moves CursorMoved
     , Ports.clicks MouseClick
-    , EyeTracker.subscription model.screenSize model.windowSize
     , resizes WindowResize
     , Ports.screenSize ScreenSize
     , dwellCommandSubscription model.commandPalette
